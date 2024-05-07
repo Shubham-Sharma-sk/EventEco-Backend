@@ -41,7 +41,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
             cd /var/www/EventEco-Backend
-            npm install
+            sudo npm install
 
       - name: Execute remote commands (optional)
         uses: appleboy/ssh-action@master
@@ -51,4 +51,4 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
             cd /var/www/EventEco-Backend
-            pm2 restart index.js  
+            sudo pm2 start index.js  
