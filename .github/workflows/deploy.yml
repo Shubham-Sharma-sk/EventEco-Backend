@@ -19,43 +19,44 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Delete existing content in /var/www
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: sudo rm -rf /var/www/*  
-
-      - name: Clone repository on EC2 
+      - name: Clone repository to temporary location
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            sudo su
-            sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www
+            git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /tmp/my-project
 
-      - name: Install dependencies (in cloned directory)
+      - name: Install dependencies
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            cd /var/www
+            cd /tmp/my-project
             npm install
 
-      - name: Build project (in cloned directory)
+      - name: Build project
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            cd /var/www
+            cd /tmp/my-project
             npm run build 
+
+      - name: Move files to /var/www 
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: | 
+            sudo rm -rf /var/www/*  # Delete existing content if needed
+            sudo mv /tmp/my-project/* /var/www 
 
       - name: Execute remote commands (optional)
         uses: appleboy/ssh-action@master
