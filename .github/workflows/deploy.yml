@@ -9,7 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ... (Previous steps: Checkout code, Configure AWS credentials)
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Delete existing content in /var/www
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: sudo rm -rf /var/www/*  
 
       - name: Clone repository on EC2 
         uses: appleboy/ssh-action@master
@@ -18,7 +34,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www
+            git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www
 
       - name: Install dependencies (in cloned directory)
         uses: appleboy/ssh-action@master
@@ -27,7 +43,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            cd /var/www/EventEco-Backend
+            cd /var/www
             npm install
 
       - name: Build project (in cloned directory)
