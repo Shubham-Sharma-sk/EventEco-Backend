@@ -38,15 +38,6 @@ jobs:
             cd /tmp/my-project
             npm install
 
-      - name: Build project
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: | 
-            cd /tmp/my-project
-            npm run build 
 
       - name: Move files to /var/www 
         uses: appleboy/ssh-action@master
