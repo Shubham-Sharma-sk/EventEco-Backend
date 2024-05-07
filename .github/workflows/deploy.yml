@@ -20,26 +20,26 @@ jobs:
 
     - name: Set permissions for .pem file
       run: |
-        echo "${{ secrets.SSH_PEM_FILE }}" > Event_Eco.pem
-        chmod 400 Event_Eco.pem
+        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > deploy_key.pem
+        chmod 400 deploy_key.pem
 
     - name: Delete existing directory
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        key: ./Event_Eco.pem
+        key: ./deploy_key.pem
         script: |
-          sudo rm -rf /var/www/Event_ECO || true
+          sudo rm -rf /var/www/EventEco-Backend || true
 
     - name: Clone repository
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        key: ./Event_Eco.pem
+        key: ./deploy_key.pem
         script: |
-          sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www/EventEco-Backend || exit 0
+          sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git  /var/www/EventEco-Backend || exit 0
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
