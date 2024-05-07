@@ -34,6 +34,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
+            sudo su
             sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www
 
       - name: Install dependencies (in cloned directory)
