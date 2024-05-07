@@ -17,37 +17,41 @@ jobs:
       run: |
         # Add commands to install dependencies here
         # Example: npm install
-        npm install
+
+    - name: Set permissions for .pem file
+      run: |
+        echo "${{ secrets.SSH_PEM_FILE }}" > Event_Eco.pem
+        chmod 400 Event_Eco.pem
 
     - name: Delete existing directory
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.SSH_PEM_FILE }}
+        key: ./Event_Eco.pem
         script: |
-          sudo rm -rf /var/www/EventEco-Backend
+          sudo rm -rf /var/www/Event_ECO || true
 
     - name: Clone repository
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.SSH_PEM_FILE }}
+        key: ./Event_Eco.pem
         script: |
-          sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www/
+          sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www/EventEco-Backend || exit 0
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.SSH_PEM_FILE }}
+        key: ./deploy_key.pem
         script: |
           # Change directory to your cloned repository
           cd /var/www/EventEco-Backend
           # Commands to deploy your backend
           # Example:
-          npm install
+          # npm install
           # npm run build
-          pm2 restart index.js
+          # pm2 restart app
