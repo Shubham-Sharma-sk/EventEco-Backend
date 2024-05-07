@@ -1,57 +1,51 @@
-name: Deploy Backend to EC2
+name: Deploy to EC2
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # ... (Previous steps: Checkout code, Configure AWS credentials)
 
-    - name: Install dependencies
-      run: |
-        # Add commands to install dependencies here
-        # Example: npm install
+      - name: Clone repository on EC2 
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: | 
+            git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www
 
-    - name: Set permissions for .pem file
-      run: |
-        echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > deploy_key.pem
-        chmod 400 deploy_key.pem
+      - name: Install dependencies (in cloned directory)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: | 
+            cd /var/www
+            npm install
 
-    - name: Delete existing directory
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ./deploy_key.pem
-        script: |
-          sudo rm -rf /var/www/EventEco-Backend || true
+      - name: Build project (in cloned directory)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: | 
+            cd /var/www
+            npm run build 
 
-    - name: Clone repository
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ./deploy_key.pem
-        script: |
-          sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git  /var/www/EventEco-Backend || exit 0
-
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ./deploy_key.pem
-        script: |
-          # Change directory to your cloned repository
-          cd /var/www/EventEco-Backend
-          # Commands to deploy your backend
-          # Example:
-          # npm install
-          # npm run build
-          # pm2 restart app
+      - name: Execute remote commands (optional)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: | 
+            cd /var/www
+            pm2 restart app.js  
