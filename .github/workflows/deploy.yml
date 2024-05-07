@@ -35,7 +35,7 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.SSH_PEM_FILE }}
         script: |
-        sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www/
+          sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www/
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
@@ -48,6 +48,6 @@ jobs:
           cd /var/www/EventEco-Backend
           # Commands to deploy your backend
           # Example:
-           npm install
+          npm install
           # npm run build
-           pm2 restart app.js
+          pm2 restart index.js
