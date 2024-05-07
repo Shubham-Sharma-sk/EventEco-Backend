@@ -19,14 +19,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Clone repository to temporary location
+      - name: Update code in /var/www
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /home/ubuntu/
+            cd /var/www/EventEco-Backend
+            if [ -d .git ]; then
+              git pull origin main
+            else
+              git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git . 
+            fi
 
       - name: Install dependencies
         uses: appleboy/ssh-action@master
@@ -35,26 +40,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            cd /home/ubuntu/EventEco-Backend
+            cd /var/www/EventEco-Backend
             npm install
-
-      - name: Move files to /var/www 
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: | 
-            sudo rm -rf /var/www/*  
-            sudo mv /home/ubuntu/* /var/www/
-
-      - name: Remove temporary directory
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: sudo rm -rf /home/ubuntu
 
       - name: Execute remote commands (optional)
         uses: appleboy/ssh-action@master
@@ -64,4 +51,4 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
             cd /var/www/EventEco-Backend
-            pm2 restart app.js  
+            pm2 restart index.js  
