@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /tmp/my-project
+            git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /home/ubuntu/
 
       - name: Install dependencies
         uses: appleboy/ssh-action@master
@@ -35,7 +35,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            cd /tmp/my-project
+            cd /home/ubuntu/EventEco-Backend
             npm install
 
       - name: Move files to /var/www 
@@ -46,7 +46,7 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
             sudo rm -rf /var/www/*  
-            sudo mv /tmp/my-project/* /var/www 
+            sudo mv /home/ubuntu/* /var/www/
 
       - name: Remove temporary directory
         uses: appleboy/ssh-action@master
@@ -54,7 +54,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          script: sudo rm -rf /tmp/my-project
+          script: sudo rm -rf /home/ubuntu
 
       - name: Execute remote commands (optional)
         uses: appleboy/ssh-action@master
@@ -63,5 +63,5 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: | 
-            cd /var/www
+            cd /var/www/EventEco-Backend
             pm2 restart app.js  
