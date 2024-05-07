@@ -1,0 +1,53 @@
+name: Deploy Backend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        # Add commands to install dependencies here
+        # Example: npm install
+        npm install
+
+    - name: Delete existing directory
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.SSH_PEM_FILE }}
+        script: |
+          sudo rm -rf /var/www/EventEco-Backend
+
+    - name: Clone repository
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.SSH_PEM_FILE }}
+        script: |
+        sudo git clone https://github.com/Shubham-Sharma-sk/EventEco-Backend.git /var/www/
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.SSH_PEM_FILE }}
+        script: |
+          # Change directory to your cloned repository
+          cd /var/www/EventEco-Backend
+          # Commands to deploy your backend
+          # Example:
+           npm install
+          # npm run build
+           pm2 restart app.js
